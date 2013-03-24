@@ -1,4 +1,5 @@
 {
   "date": "date +\"%y-%m-%d\"",
-  "ls"  : "ls -a"
+  "ls"  : "ls -a",
+  "usage": "du -d 1"
 }

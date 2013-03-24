@@ -1,4 +1,3 @@
-
 # vigilant
 
   Simple command-line tool to contain and run multiple processes. Each process's stdio and stderr will be combined in beautiful technicolor. Vigilant will exit after the last process has exited.
@@ -10,48 +9,53 @@
 ## Usage
 
 ```
-Usage: vigilant [options] [dir]
+  Usage: vigilant [options] [commands]
 
+  Options:
+
+    -h, --help           output usage information
+    -V, --version        output the version number
+    -c, --config <file>  vigilant.json config pathname (default ./vigilant.json)
 ```
+
+Note: Vigilant will run all commands if none are specified.
 
 ## Silly Example
 
-vigilant.json
+Make a `vigilant.json`
 
 ``` json
 {
   "date": "date +\"%y-%m-%d\"",
-  "ls"  : "ls -a"
+  "ls"  : "ls -a",
+  "disk": "du -d 1"
 }
 ```
 
-`vigilant`
+Run `vigilant date usage`
 
 ```
   vigilant: 'date' running...
-  vigilant: 'ls' running...
+  vigilant: 'usage' running...
       date: "13-03-24"
   vigilant: 'date' exited with 0
-        ls: .
-        ls: ..
-        ls: .git
-        ls: .gitignore
-        ls: .npmignore
-        ls: README.md
-        ls: bin
-        ls: example
-        ls: node_modules
-        ls: package.json
-        ls: vigilant.json
-  vigilant: 'ls' exited with 0
+     usage: 376 ./.git
+     usage: 8   ./bin
+     usage: 64  ./example
+     usage: 184 ./node_modules
+     usage: 672 .
+  vigilant: 'usage' exited with 0
 ```
-
 
 ## Useful Example
 
-See [example](./example)
+See the [example](./example) directory
 
-vigilant.json
+Install some useful CLIs
+
+`npm install -g coffee-script jade stylus serve`
+
+Make a `vigilant.json`
 
 ``` json
 {
@@ -62,8 +66,7 @@ vigilant.json
 }
 ```
 
-`npm install -g coffee-script jade stylus serve`
-`vigilant`
+Run `vigilant`
 
 ```
   vigilant: 'coffee' running...
@@ -80,6 +83,13 @@ vigilant.json
     stylus:   watching src/styles/app.styl
      serve: serving /***/vigilant/example/build on port 8888
 ```
+
+Vigilant is now watching and compiling all your HTML, CSS, JS and serving the result on port 8888
+
+## Todo
+
+* Execution sequences
+* Custom working directories
 
 ## MIT License
 

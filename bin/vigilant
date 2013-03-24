@@ -36,7 +36,7 @@ fs.readFile(configPath, function(err, contents) {
   //Fire
   for(var name in config) {
     var c = config[name];
-    if(!runOnly.length || runOnly.indexOf(c) !== -1)
+    if(!runOnly.length || runOnly.indexOf(name) !== -1)
       run(name, c);
   }
 });
