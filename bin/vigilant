@@ -1,0 +1,104 @@
+#!/usr/bin/env node
+
+var colors = require('colors'),
+    fs = require('fs'),
+    program = require('commander'),
+    spawn = require('child_process').spawn;
+
+// CLI
+program
+  .version('0.1.0')
+  .usage('[options] [commands]')
+  .option('-c, --config <file>', 'vigilant.json config pathname (default: ./vigilant.json)')
+  .parse(process.argv);
+
+var colors = ['blue','green','yellow', 'magenta', 'cyan'],
+    mainLog = makeLog('white', 'vigilant'),
+    children = [],
+    opts = {},
+    configPath = program.config || './vigilant.json',
+    runOnly = program.args;
+
+// Get Config
+fs.readFile(configPath, function(err, contents) {
+
+  if(!contents)
+    exit("Could not find '"+configPath+"'");
+
+  var config = null;
+
+  try {
+    config = JSON.parse(contents);
+  } catch(e) {
+    exit("Could not parse 'vigilant.json': " + e);
+  }
+
+  //Fire
+  for(var name in config) {
+    var c = config[name];
+    if(!runOnly.length || runOnly.indexOf(c) !== -1)
+      run(name, c);
+  }
+});
+
+//Runs a config
+function run(name, path) {
+
+  var i = children.length;
+  var args = path.split(/\s+/);
+  var bin = args.shift();
+  var child = null;
+  var log = makeLog(getColor(i), name);
+
+  try {
+    child = spawn(bin, args, opts);
+  } catch(e) {
+    mainLog("Could not run: " + path);
+    return;
+  }
+
+  mainLog("'"+name+"' running...");
+
+  child.stdout.on('data', function (data) {
+    log(data);
+  });
+
+  child.stderr.on('data', function (data) {
+    log(String(data).red);
+  });
+
+  child.on('close', function (code) {
+    mainLog("'"+name+"' exited with " + code);
+  });
+
+  children.push(child);
+}
+
+//helpers
+function makeLog(color, name) {
+  var n = pad(name[color]);
+  return function(msg) {
+    console.log(
+      msg.toString()
+         .replace(/^\n/m,'')
+         .replace(/\n$/m,'')
+         .replace(/^/mg, n + ": ")
+    );
+  };
+}
+
+function getColor(i) {
+  return colors[i % colors.length];
+}
+
+function pad(str) {
+  var i = 10-(str.length-10), p = "";
+  while(i > 0) p += " ", i--;
+  return p + str;
+}
+
+function exit(msg) {
+  mainLog(msg);
+  process.exit(1);
+}
+

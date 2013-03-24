@@ -1,0 +1,6 @@
+{
+  "coffee": "coffee -w -l -j build/app.js -c src/scripts",
+  "jade": "jade -w -P src/views/ -O build/",
+  "stylus": "stylus -w src/styles/ -o build/",
+  "serve": "serve -p 8888 build/"
+}
