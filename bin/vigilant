@@ -3,7 +3,7 @@
 var colors = require('colors'),
     fs = require('fs'),
     program = require('commander'),
-    spawn = require('child_process').spawn;
+    exec = require('child_process').exec;
 
 // CLI
 program
@@ -45,13 +45,11 @@ fs.readFile(configPath, function(err, contents) {
 function run(name, path) {
 
   var i = children.length;
-  var args = path.split(/\s+/);
-  var bin = args.shift();
   var child = null;
   var log = makeLog(getColor(i), name);
 
   try {
-    child = spawn(bin, args, opts);
+    child = exec(path, opts);
   } catch(e) {
     mainLog("Could not run: " + path);
     return;
