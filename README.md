@@ -27,8 +27,8 @@ Make a `vigilant.json`
 ``` json
 {
   "date": "date +\"%y-%m-%d\"",
-  "ls"  : "ls -a",
-  "disk": "du -d 1"
+  "ls": "ls -a",
+  "usage": "du -d 1"
 }
 ```
 
