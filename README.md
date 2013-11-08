@@ -22,30 +22,38 @@ Note: Vigilant will run all commands if none are specified.
 
 ## Silly Example
 
-Make a `vigilant.json`
+Run:
+``` sh
+vigilant 'date +"%y-%m-%d"' 'ls -a' 'du -d 1'
+```
+
+Produces:
+```
+  vigilant: 'date' running...
+  vigilant: 'ls' running...
+  vigilant: 'du' running...
+      date: 13-11-08
+        ls: .
+        ls: ..
+        ls: README.md
+        ls: print-args.js
+  vigilant: 'date' exited with 0
+        du: 16  .
+  vigilant: 'ls' exited with 0
+  vigilant: 'du' exited with 0
+```
+
+Equivalently, create the `vigilant.json` file:
 
 ``` json
 {
   "date": "date +\"%y-%m-%d\"",
   "ls": "ls -a",
-  "usage": "du -d 1"
+  "du": "du -d 1"
 }
 ```
 
-Run `vigilant date usage`
-
-```
-  vigilant: 'date' running...
-  vigilant: 'usage' running...
-      date: "13-03-24"
-  vigilant: 'date' exited with 0
-     usage: 376 ./.git
-     usage: 8   ./bin
-     usage: 64  ./example
-     usage: 184 ./node_modules
-     usage: 672 .
-  vigilant: 'usage' exited with 0
-```
+And just run `vigilant` where the `vigilant.json` resides.
 
 ## Useful Example
 

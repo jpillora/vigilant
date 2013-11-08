@@ -2,6 +2,7 @@
 
 var colors = require('colors'),
     fs = require('fs'),
+    path = require('path'),
     program = require('commander'),
     exec = require('child_process').exec;
 
@@ -14,32 +15,76 @@ program
 
 var colors = ['blue','green','yellow', 'magenta', 'cyan'],
     mainLog = makeLog('white', 'vigilant'),
+    nameLen = 'vigilant'.length,
+    configPath = program.config || './vigilant.json',
+    args = program.args,
     children = [],
     opts = {},
-    configPath = program.config || './vigilant.json',
-    runOnly = program.args;
+    queue = [];
 
 // Get Config
 fs.readFile(configPath, function(err, contents) {
 
-  if(!contents)
-    exit("Could not find '"+configPath+"'");
+  var name;
 
-  var config = null;
+  //programs in config
+  if(contents) {
+    var config = null;
+    try {
+      config = JSON.parse(contents);
+    } catch(e) {
+      exit("Could not parse 'vigilant.json': " + e);
+    }
 
-  try {
-    config = JSON.parse(contents);
-  } catch(e) {
-    exit("Could not parse 'vigilant.json': " + e);
+    //Fire
+    for(name in config) {
+      var c = config[name];
+      //use args as filter
+      if(!args.length || args.indexOf(name) !== -1)
+        prepare(name, c);
+    }
+
+  //programs in arguments
+  } else if(args.length) {
+
+    for(var i = 0; i < args.length; i++)
+      prepare(args[i], args[i]);
+
+  //programs not found
+  } else {
+    exit("No arguments to run and could not find '"+configPath+"'");
   }
 
-  //Fire
-  for(var name in config) {
-    var c = config[name];
-    if(!runOnly.length || runOnly.indexOf(name) !== -1)
-      run(name, c);
-  }
+  //check all
+  queue.forEach(function(q) {
+    nameLen = Math.max(nameLen, q.name.length);
+  });
+
+  //run all
+  queue.forEach(function(q) {
+    run(q.name, q.cmd);
+  });
 });
+
+function prepare(name, cmd) {
+
+  var prog = cmd.split(/\s/)[0];
+  var ext = path.extname(prog);
+  
+  if(name === cmd)
+    name = prog;
+
+  if(!ext) {
+    prog += '.js';
+    ext = '.js';
+  }
+
+  if(ext === '.js' && fs.existsSync(prog))
+    cmd = 'node ' + cmd;
+
+
+  queue.push({name:name, cmd:cmd});
+}
 
 //Runs a config
 function run(name, path) {
@@ -99,4 +144,3 @@ function exit(msg) {
   mainLog(msg);
   process.exit(1);
 }
-
